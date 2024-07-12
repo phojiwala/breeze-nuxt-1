@@ -4,7 +4,7 @@ import { parseCookies } from "h3";
 const CSRF_COOKIE = "XSRF-TOKEN";
 const CSRF_HEADER = "X-XSRF-TOKEN";
 
-export const $larafetch = $fetch.create({
+export const $fetcher = $fetch.create({
   credentials: "include",
   async onRequest({ request, options }) {
     const { backendUrl, frontendUrl } = useRuntimeConfig().public;
@@ -23,7 +23,7 @@ export const $larafetch = $fetch.create({
       token = await initCsrf();
     }
 
-    let headers: any = {
+    let headers = {
       accept: "application/json",
       ...options?.headers,
       ...(token && { [CSRF_HEADER]: token }),

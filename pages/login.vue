@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 definePageMeta({ middleware: ["guest"] });
 
 const router = useRouter();
@@ -11,14 +11,10 @@ const data = reactive({
   remember: false,
 });
 const status = ref(
-  (route.query.reset ?? "").length > 0 ? atob(route.query.reset as string) : ""
+  (route.query.reset ?? "").length > 0 ? atob(route.query.reset) : ""
 );
 
-const {
-  submit,
-  inProgress,
-  validationErrors: errors,
-} = useSubmit(
+const { submit, inProgress, validationErrors: errors } = useSubmit(
   () => {
     status.value = "";
     return login(data);
@@ -47,7 +43,7 @@ const {
         <Input
           id="email"
           type="email"
-          class="block mt-1 w-full"
+          class="block w-full"
           v-model="data.email"
           :errors="errors.email?.[0]"
           required
@@ -61,11 +57,12 @@ const {
         <Input
           id="password"
           type="password"
-          class="block mt-1 w-full"
+          class="block w-full"
           v-model="data.password"
           :errors="errors.password"
           required
           autoComplete="current-password"
+          showEye="true"
         />
       </div>
 
@@ -83,15 +80,24 @@ const {
         </label>
       </div>
 
-      <div class="flex items-center justify-end mt-4">
+      <div class="flex items-center justify-between mt-4">
         <NuxtLink
           href="/forgot-password"
           class="underline text-sm text-gray-600 hover:text-gray-900"
         >
           Forgot your password?
         </NuxtLink>
+        <Button :disabled="inProgress">Login</Button>
+      </div>
 
-        <Button class="ml-3" :disabled="inProgress">Login</Button>
+      <div class="flex items-center justify-center mt-4">
+        <small class="text-gray-600">New Member?</small>
+        <NuxtLink
+          href="/register"
+          class="underline text-sm text-gray-600 hover:text-gray-900 ml-1"
+          :disabled="inProgress"
+          >Register</NuxtLink
+        >
       </div>
     </form>
   </AuthCard>

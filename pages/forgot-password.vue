@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 definePageMeta({ middleware: ["guest"] });
 
 const { forgotPassword } = useAuth();
@@ -7,11 +7,7 @@ const email = ref("");
 const resetEmailSent = ref(false);
 const status = ref("");
 
-const {
-  submit,
-  inProgress,
-  validationErrors: errors,
-} = useSubmit(
+const { submit, inProgress, validationErrors: errors } = useSubmit(
   () => {
     status.value = "";
     return forgotPassword(email.value);
@@ -34,9 +30,8 @@ const {
     </template>
 
     <div class="mb-4 text-sm text-gray-600">
-      Forgot your password? No problem. Just let us know your email address and
-      we will email you a password reset link that will allow you to choose a
-      new one.
+      Forgot your password? No problem. Just let us know your email address and we will
+      email you a password reset link that will allow you to choose a new one.
     </div>
 
     <!-- Session Status -->
@@ -58,10 +53,15 @@ const {
         />
       </div>
 
-      <div class="flex items-center justify-end mt-4">
-        <Button class="ml-3" :disabled="inProgress || resetEmailSent">
-          Email Password Reset Link
-        </Button>
+      <div class="flex items-center justify-between mt-4">
+        <small class="text-gray-600 cursor-pointer">
+          <NuxtLink
+            href="/login"
+            class="underline text-sm text-gray-600 hover:text-gray-900 ml-1"
+            >Back</NuxtLink
+          >
+        </small>
+        <Button class="ml-3" :disabled="inProgress || resetEmailSent"> Send link </Button>
       </div>
     </form>
   </AuthCard>

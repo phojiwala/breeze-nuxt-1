@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 definePageMeta({ middleware: ["unverified"] });
 
 const { logout, resendEmailVerification } = useAuth();

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 definePageMeta({ middleware: ["guest"] });
 
 const router = useRouter();
@@ -10,7 +10,7 @@ if (!route.query.email) {
 }
 
 const data = reactive({
-  email: route.query.email as string,
+  email: route.query.email,
   password: "",
   password_confirmation: "",
 });
@@ -19,7 +19,7 @@ const {
   submit,
   inProgress,
   validationErrors: errors,
-} = useSubmit(() => resetPassword({ token: token.value as string, ...data }), {
+} = useSubmit(() => resetPassword({ token: token.value, ...data }), {
   onSuccess: (result) =>
     router.push({
       path: "/login",

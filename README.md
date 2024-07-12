@@ -58,7 +58,7 @@ Finally, run the application via `npm run dev`. The application will be availabl
 npm run dev
 ```
 
-> **Note**  
+> **Note**
 > Currently, we recommend using `localhost` during local development of your backend and frontend to avoid CORS "Same-Origin" issues.
 
 
@@ -79,16 +79,16 @@ Then add this script to `package.json` (this assumes your Laravel app lives in `
 
 You have the following auto imported utilities in the `utils` directory:
 
-### $larafetch
+### $fetcher
 
-`$larafetch` is a wrapper around Nuxt's `$fetch` that makes it a breeze to make requests to your Laravel app:
+`$fetcher` is a wrapper around Nuxt's `$fetch` that makes it a breeze to make requests to your Laravel app:
 
 - Base URL is already set to `NUXT_PUBLIC_BACKEND_URL` value specified in your `.env` file.
 - Auto CSRF management.
 - Forwards the appropriate headers/cookies when in SSR context.
 
-> **Note**  
-> To take advantage of Nuxt3 SSR Hydration when making `GET` requests, you should use the `useLarafetch` composable rather than directly calling `$larafetch`, otherwise your app will make additional unnecessary requests once the page loads in your browser (The same also applies to Nuxt's regular `$fetch` and `useFetch`).
+> **Note**
+> To take advantage of Nuxt3 SSR Hydration when making `GET` requests, you should use the `useFetcher` composable rather than directly calling `$fetcher`, otherwise your app will make additional unnecessary requests once the page loads in your browser (The same also applies to Nuxt's regular `$fetch` and `useFetch`).
 
 ## Composables
 
@@ -97,7 +97,7 @@ You have the following auto imported utilities in the `utils` directory:
 This Nuxt3 application contains a custom `useAuth` composable, designed to abstract all authentication logic away from your pages. In addition, the composable can be used to access the currently authenticated user:
 
 ```vue
-<script setup lang="ts">
+<script setup>
 const { user, logout } = useAuth();
 </script>
 
@@ -110,13 +110,13 @@ const { user, logout } = useAuth();
 </template>
 ```
 
-### useLarafetch
+### useFetcher
 
-`useLarafetch` is a wrapper around Nuxt's `useFetch` which uses `$larafetch` instead of `$fetch`:
+`useFetcher` is a wrapper around Nuxt's `useFetch` which uses `$fetcher` instead of `$fetch`:
 
 ```vue
-<script setup lang="ts">
-const { data: posts } = await useLarafetch("/api/posts");
+<script setup>
+const { data: posts } = await useFetcher("/api/posts");
 </script>
 
 <template>
@@ -132,7 +132,7 @@ const { data: posts } = await useLarafetch("/api/posts");
 `useSubmit` is a useful composable to track validation errors and loading state when making `POST` or `PUT` requests:
 
 ```vue
-<script setup lang="ts">
+<script setup>
 const data = reactive({
   title: "lorem ipsum",
   body: "lorem ipsum",
@@ -142,7 +142,7 @@ const {
   submit: createPost,
   inProgress,
   validationErrors,
-} = useSubmit(() => $larafetch("/api/posts", { method: "post", body: data }), {
+} = useSubmit(() => $fetcher("/api/posts", { method: "post", body: data }), {
   onSuccess: (result) => console.log("Post created successfully", result),
 });
 </script>
@@ -160,7 +160,7 @@ const {
 You can use any of the provided middlewares in your pages:
 
 ```vue
-<script setup lang="ts">
+<script setup>
 definePageMeta({ middleware: ["auth"] });
 </script>
 

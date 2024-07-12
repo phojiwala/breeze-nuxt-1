@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { Menu, MenuButton, MenuItems, TransitionRoot } from "@headlessui/vue";
 
 const props = defineProps({
