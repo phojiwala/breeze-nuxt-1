@@ -1,7 +1,7 @@
 <script setup></script>
 
 <style>
-@import url("/global.css");
+@import url("global.css");
 </style>
 
 <template>

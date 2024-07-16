@@ -1,8 +1,5 @@
 <script setup>
-import {toRaw } from 'vue'
 const { isLoggedIn } = useAuth();
-
-console.log('isLoggedIn', isLoggedIn)
 </script>
 
 <template>
@@ -29,7 +26,7 @@ console.log('isLoggedIn', isLoggedIn)
       </template>
     </div>
 
-    <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
       <div class="flex justify-center pt-8 sm:justify-start sm:pt-0">
         Homepage
       </div>
