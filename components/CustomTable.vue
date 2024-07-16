@@ -23,7 +23,7 @@ const cols =
 
 const changeServer = (data) => {
   params.page = data.current_page;
-  params.per_page = data.per_page;
+  params.per_page = data.pagesize;
   params.sort_column = data.sort_column;
   params.sort_direction = data.sort_direction;
 };
@@ -47,7 +47,9 @@ const changeServer = (data) => {
     </template>
     <template #actions="data">
       <div class="space-x-2">
-        <Button>edit</Button>
+        <CustomDialog>
+          <Button>edit</Button>
+        </CustomDialog>
         <Button>delete</Button>
       </div>
     </template>
