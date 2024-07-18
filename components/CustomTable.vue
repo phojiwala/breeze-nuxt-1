@@ -1,15 +1,16 @@
 <script setup>
 import { inject, ref, watch } from "vue";
 import { Input } from "@/components/ui/input";
+import Confirm from "@/components/Confirm";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 
-const props = defineProps(["data", "pending", "params"]);
+const props = defineProps(["data", "pending", "params", "refresh"]);
 const emit = defineEmits(["update-params"]);
 const searchQuery = ref(props.params.search || "");
 
 const cols = ref([
-  { field: "id", title: "ID", isUnique: true, type: "number" },
+  // { field: "id", title: "#", type: "number" },
   { field: "title", title: "Title" },
   { field: "price", title: "Price" },
   { field: "description", title: "Description" },
@@ -56,8 +57,12 @@ watch(
 
 const clickHandle = (obj) => console.log();
 
-const handleOpen = (dialogId) => {
-  store.dialogs[dialogId] = true;
+const dialogHandle = (id) => {
+  store.dialogs[id] = true;
+};
+
+const popoverHandle = (id) => {
+  store.popovers[id] = true;
 };
 </script>
 
@@ -76,8 +81,8 @@ const handleOpen = (dialogId) => {
         <Button @click="handleSearch">Search</Button>
         <Button @click="clearSearch">Clear</Button>
       </div>
-      <CustomDialog :dialogId="'add-dashboard'">
-        <Button @click="handleOpen('add-dashboard')">Add</Button>
+      <CustomDialog :dialogId="'add-dashboard'" :refresh="props.refresh">
+        <Button @click="dialogHandle('add-dashboard')">Add</Button>
       </CustomDialog>
     </div>
     <Vue3Datatable
@@ -98,9 +103,16 @@ const handleOpen = (dialogId) => {
       <template #actions="data">
         <div class="space-x-2">
           <CustomDialog :data="data" :dialogId="`edit-dashboard`">
-            <Button @click="handleOpen(`edit-dashboard`)">Edit</Button>
+            <Button @click="dialogHandle(`edit-dashboard`)">Edit</Button>
           </CustomDialog>
-          <Button variant="destructive">Delete</Button>
+          <Confirm :id="`popover-${data.value.id}`" :refresh="props.refresh">
+            <Button
+              @click="popoverHandle(`popover-${data.value.id}`)"
+              variant="destructive"
+            >
+              Delete
+            </Button>
+          </Confirm>
         </div>
       </template>
     </Vue3Datatable>

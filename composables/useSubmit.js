@@ -9,7 +9,6 @@ export function useSubmit(fetchable, options = {}) {
     error.value = null;
     inProgress.value = true;
     succeeded.value = null;
-
     try {
       const data = await fetchable();
       succeeded.value = true;

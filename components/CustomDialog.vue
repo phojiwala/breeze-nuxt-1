@@ -4,43 +4,35 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { inject, ref } from "vue";
-import { useSubmit } from "@/composables/useSubmit";
 import { addDashboard } from "@/composables/states";
+import { useFetcher } from "@/composables/useFetcher";
 
-const props = defineProps(["data", "dialogId"]);
-const emit = defineEmits(["submit"]);
-
+const props = defineProps(["data", "dialogId", "refresh"]);
 const title = ref("");
 const price = ref("");
 const description = ref("");
 const category = ref("");
+const { $toast } = useNuxtApp();
 
-// const handleSubmit = () => {
-//   let obj = {
-//     title: title.value,
-//     price: price.value,
-//     description: description.value,
-//     category: category.value,
-//   };
-//   console.log(obj);
-//   store.dialogs[props.dialogId] = false;
-//   emit("submit", obj);
-// };
-
-const { submit, inProgress, validationErrors: errors } = useSubmit(
-  () => {
-    let obj = {
-      title: title.value,
-      price: price.value,
-      description: description.value,
-      category: category.value,
-    };
-    return addDashboard(obj);
-  },
-  {
-    onSuccess: () => (store.dialogs[props.dialogId] = false),
+const submit = async () => {
+  let obj = {
+    title: title.value,
+    price: price.value,
+    description: description.value,
+    category: category.value,
+  };
+  let { data, pending, error, execute, status } = await useFetcher("/dashboard", {
+    method: "POST",
+    body: obj,
+  });
+  if (status.value == "success") {
+    props.refresh();
+    $toast.success("Item added");
+    store.dialogs[props.dialogId] = false;
+  } else {
+    $toast.error(error.value.message);
   }
-);
+};
 </script>
 
 <template>

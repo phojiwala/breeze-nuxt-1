@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
-import { CaretSortIcon, CheckIcon } from "@radix-icons/vue";
 import { cn } from "@/lib/utils";
+import { CaretSortIcon, CheckIcon } from '@radix-icons/vue'
 import { Button } from "@/components/ui/button";
 
 const props = defineProps({
@@ -18,8 +18,8 @@ const options = [
 ];
 
 const open = ref(false);
-const comboboxVal = ref(props.modelValue);
-watch(comboboxVal, (newValue) => {
+const value = ref(props.modelValue);
+watch(value, (newValue) => {
   emit("update:modelValue", newValue);
 });
 </script>

@@ -1,3 +1,4 @@
+const { $toast } = useNuxtApp();
 export function useFetcher(
   url,
   options = {}
@@ -8,6 +9,7 @@ export function useFetcher(
       const status = response.status;
       if ([500].includes(status)) {
         console.error("[Laravel Error]", response.statusText, response._data);
+        $toast.error(response.statusText);
       }
 
       if ([401, 419].includes(status)) {

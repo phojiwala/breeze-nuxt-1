@@ -116,7 +116,10 @@ const { user, logout } = useAuth();
 
 ```vue
 <script setup>
-const { data: posts } = await useFetcher("/api/posts");
+const { data: posts, pending, error, refresh, execute, status }  = await useFetcher("/api/posts", {
+  method: "POST",
+  body: obj,
+});
 </script>
 
 <template>

@@ -55,6 +55,7 @@ const updateParams = (newParams) => {
       :data="data"
       :pending="pending"
       :params="params"
+      :refresh="refresh"
       @update-params="updateParams"
     />
   </NuxtLayout>
