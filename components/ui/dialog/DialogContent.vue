@@ -36,8 +36,10 @@ const delegatedProps = computed(() => {
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
 
 const open = inject("open");
+
 const handleClose = () => {
   store.open = false;
+  store.formData = {};
 };
 </script>
 

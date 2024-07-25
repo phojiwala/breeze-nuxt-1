@@ -57,7 +57,10 @@ watch(
 
 const clickHandle = (obj) => console.log();
 
-const dialogHandle = (id) => {
+const dialogHandle = (id, data) => {
+  if (data != null) {
+    store.formData = data;
+  }
   store.dialogs[id] = true;
 };
 
@@ -82,7 +85,7 @@ const popoverHandle = (id) => {
         <Button @click="clearSearch">Clear</Button>
       </div>
       <CustomDialog :dialogId="'add-dashboard'" :refresh="props.refresh">
-        <Button @click="dialogHandle('add-dashboard')">Add</Button>
+        <Button @click="dialogHandle('add-dashboard', null)">Add</Button>
       </CustomDialog>
     </div>
     <Vue3Datatable
@@ -95,15 +98,12 @@ const popoverHandle = (id) => {
       :loading="props?.pending"
       @change="changeServer"
     >
-      <!-- <template #price="data">
-        <a :href="`mailto:${data.value.price}`" class="text-primary hover:underline">{{
-          data.value.price
-        }}</a>
-      </template> -->
       <template #actions="data">
         <div class="space-x-2">
-          <CustomDialog :data="data" :dialogId="`edit-dashboard`">
-            <Button @click="dialogHandle(`edit-dashboard`)">Edit</Button>
+          <CustomDialog :data="data" :dialogId="`edit-dashboard-${data.value.id}`" :refresh="props.refresh">
+            <Button @click="dialogHandle(`edit-dashboard-${data.value.id}`, data.value)"
+              >Edit</Button
+            >
           </CustomDialog>
           <Confirm :id="`popover-${data.value.id}`" :refresh="props.refresh">
             <Button

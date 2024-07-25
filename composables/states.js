@@ -14,3 +14,7 @@ export async function addDashboard(data) {
     body: data,
   });
 }
+
+export function isObjectEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}
