@@ -4,7 +4,8 @@ import 'vue3-toastify/dist/index.css'
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(Vue3Toastify, {
     autoClose: 1500,
-    "type": "success",
+    "theme": "colored",
+    // "type": "success",
     "position": "bottom-right",
     "transition": "flip",
     "dangerouslyHTMLString": true

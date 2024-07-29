@@ -10,7 +10,8 @@ const emit = defineEmits(["update-params"]);
 const searchQuery = ref(props.params.search || "");
 
 const cols = ref([
-  // { field: "id", title: "#", type: "number" },
+  { field: "id", title: "#", type: "number", sort: false },
+  { field: "image", title: "Image", sort: false },
   { field: "title", title: "Title" },
   { field: "price", title: "Price" },
   { field: "description", title: "Description" },
@@ -67,6 +68,9 @@ const dialogHandle = (id, data) => {
 const popoverHandle = (id) => {
   store.popovers[id] = true;
 };
+
+const config = useRuntimeConfig();
+const backendUrl = config.public.backendUrl;
 </script>
 
 <template>
@@ -98,9 +102,23 @@ const popoverHandle = (id) => {
       :loading="props?.pending"
       @change="changeServer"
     >
+      <template #image="data">
+        <img
+          :src="
+            data.value.image ? `${backendUrl}/${data.value.image}` : `/placeholder.png`
+          "
+          width="30"
+          height="30"
+          class="rounded-full cursor-pointer hover:shadow-xl shadow-md w-[30px] h-[30px] object-cover"
+        />
+      </template>
       <template #actions="data">
-        <div class="space-x-2">
-          <CustomDialog :data="data" :dialogId="`edit-dashboard-${data.value.id}`" :refresh="props.refresh">
+        <div class="flex gap-2">
+          <CustomDialog
+            :data="data"
+            :dialogId="`edit-dashboard-${data.value.id}`"
+            :refresh="props.refresh"
+          >
             <Button @click="dialogHandle(`edit-dashboard-${data.value.id}`, data.value)"
               >Edit</Button
             >

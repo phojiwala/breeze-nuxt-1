@@ -39,7 +39,7 @@ const clickHandle = () => (searchValue.value = "");
       border-cell
     >
       <template #item-actions>
-        <div class="space-x-2">
+        <div class="flex gap-2">
           <Button variant="link">Edit</Button>
           <Button variant="link">Delete</Button>
         </div>

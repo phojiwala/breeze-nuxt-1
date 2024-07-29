@@ -1,4 +1,7 @@
 <script setup>
+import { useRegisterSW } from "virtual:pwa-register/vue";
+
+const { needRefresh, updateServiceWorker } = useRegisterSW();
 </script>
 
 <style>
@@ -18,5 +21,9 @@
         <NuxtPage />
       </NuxtLayout>
     </Body>
+    <div v-if="needRefresh" class="pwa-toast">
+      <div class="message">New content available, click on reload button to update.</div>
+      <button @click="updateServiceWorker()">Reload</button>
+    </div>
   </div>
 </template>

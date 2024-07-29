@@ -14,11 +14,13 @@ const description = ref("");
 const category = ref("");
 const { $toast } = useNuxtApp();
 
+const preview = ref("/placeholder.png");
 const details = ref({
   title: "",
   price: "",
   description: "",
   category: "",
+  image: "",
 });
 
 watch(
@@ -30,11 +32,38 @@ watch(
   }
 );
 
+function uploadImage(e) {
+  const file = e.target.files[0];
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+  if (!allowedTypes.includes(file.type)) {
+    (details.value.image  = "/placeholder.png"),
+      $toast.error("The file type must be JPG, JPEG, or PNG.");
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    (details.value.image  = "/placeholder.png"),
+      $toast.error("File size should not exceed 5MB.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = (e) => {
+    details.value.image  = file;
+    preview.value = e.target.result;
+  };
+}
+
 const submit = async () => {
   if (isObjectEmpty(store.formData)) {
+    const formData = new FormData();
+    for (const key in details.value) {
+      if (details.value.hasOwnProperty(key)) {
+        formData.append(key, details.value[key]);
+      }
+    }
     let { data, pending, error, execute, status } = await useFetcher("/dashboard", {
       method: "POST",
-      body: details.value,
+      body: formData,
     });
     if (status.value == "success") {
       props.refresh();
@@ -45,9 +74,15 @@ const submit = async () => {
     }
   } else {
     const { created_at, id, updated_at, ...rest } = details.value;
+    const formData = new FormData();
+    for (const key in rest) {
+      if (rest.hasOwnProperty(key)) {
+        formData.append(key, rest[key]);
+      }
+    }
     let { data, pending, error, execute, status } = await useFetcher(`/dashboard/${id}`, {
       method: "PUT",
-      body: rest,
+      body: formData,
     });
     if (status.value == "success") {
       props.refresh();
@@ -72,6 +107,26 @@ const submit = async () => {
         }}</DialogTitle>
       </DialogHeader>
       <form @submit.prevent="submit" class="grid gap-4 py-4">
+        <div class="flex justify-center">
+          <div class="relative">
+            <input
+              type="file"
+              class="hidden absolute"
+              name="file-input"
+              id="file-input"
+              @change="uploadImage"
+            />
+            <label for="file-input">
+              <NuxtImg
+                :src="preview"
+                :placeholder="[30, 20]"
+                width="130"
+                height="130"
+                class="rounded-full cursor-pointer hover:shadow-xl shadow-md w-[130px] h-[130px] object-cover"
+              />
+            </label>
+          </div>
+        </div>
         <div class="grid grid-cols-4 items-center gap-4">
           <Label for="title" class="text-right"> title </Label>
           <Input id="title" v-model="details.title" class="col-span-3" />

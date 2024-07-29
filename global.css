@@ -7,3 +7,14 @@ th {
   padding: auto 0 !important;
 }
 
+.Toastify__toast--success {
+  background: #105D4E !important;
+}
+
+.Toastify__toast--error {
+  background: #8D3022 !important;
+}
+
+.Toastify__toast {
+  border-radius: 10px !important;
+}

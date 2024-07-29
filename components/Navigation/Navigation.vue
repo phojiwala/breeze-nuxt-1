@@ -1,6 +1,11 @@
 <script setup>
 const { user, logout, changePassword } = useAuth();
 const open = ref(false);
+
+const links = [
+  { href: "/dashboard", title: "Dashboard" },
+  { href: "/test", title: "Test" },
+];
 </script>
 
 <template>
@@ -18,7 +23,11 @@ const open = ref(false);
 
           <!-- Navigation Links  -->
           <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-            <NavigationLink href="/dashboard"> Dashboard </NavigationLink>
+            <template v-for="link in links" :key="link.href">
+              <NavigationLink  :href="link.href">
+                {{ link.title }}
+              </NavigationLink>
+            </template>
           </div>
         </div>
 
@@ -86,7 +95,9 @@ const open = ref(false);
     <!-- Responsive Navigation Menu  -->
     <div v-show="open" class="block sm:hidden">
       <div class="pt-2 pb-3 space-y-1">
-        <NavigationResponsiveLink href="/dashboard"> Dashboard </NavigationResponsiveLink>
+        <template v-for="link in links" :key="link.href">
+          <NavigationResponsiveLink :href="link.href">{{ link.text }}</NavigationResponsiveLink>
+        </template>
       </div>
 
       <!-- Responsive Settings Options  -->
