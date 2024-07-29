@@ -4,10 +4,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { inject, ref } from "vue";
-import { addDashboard, isObjectEmpty } from "@/composables/states";
+import { isObjectEmpty } from "@/composables/states";
 import { useFetcher } from "@/composables/useFetcher";
 
-const props = defineProps(["data", "dialogId", "refresh"]);
+const props = defineProps(["data", "dialogId"]);
 const title = ref("");
 const price = ref("");
 const description = ref("");
@@ -36,19 +36,19 @@ function uploadImage(e) {
   const file = e.target.files[0];
   const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
   if (!allowedTypes.includes(file.type)) {
-    (details.value.image  = "/placeholder.png"),
+    (details.value.image = "/placeholder.png"),
       $toast.error("The file type must be JPG, JPEG, or PNG.");
     return;
   }
   if (file.size > 5 * 1024 * 1024) {
-    (details.value.image  = "/placeholder.png"),
+    (details.value.image = "/placeholder.png"),
       $toast.error("File size should not exceed 5MB.");
     return;
   }
   const reader = new FileReader();
   reader.readAsDataURL(file);
   reader.onload = (e) => {
-    details.value.image  = file;
+    details.value.image = file;
     preview.value = e.target.result;
   };
 }
@@ -61,12 +61,8 @@ const submit = async () => {
         formData.append(key, details.value[key]);
       }
     }
-    let { data, pending, error, execute, status } = await useFetcher("/dashboard", {
-      method: "POST",
-      body: formData,
-    });
+    const { error, status } = await addDashboard(formData);
     if (status.value == "success") {
-      props.refresh();
       $toast.success("Item added");
       store.dialogs[props.dialogId] = false;
     } else {
@@ -80,12 +76,8 @@ const submit = async () => {
         formData.append(key, rest[key]);
       }
     }
-    let { data, pending, error, execute, status } = await useFetcher(`/dashboard/${id}`, {
-      method: "PUT",
-      body: formData,
-    });
+    const { error, status } = await editDashboard(formData, id);
     if (status.value == "success") {
-      props.refresh();
       $toast.success("Item updated");
       store.dialogs[props.dialogId] = false;
     } else {

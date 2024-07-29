@@ -5,7 +5,7 @@ import Confirm from "@/components/Confirm";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 
-const props = defineProps(["data", "pending", "params", "refresh"]);
+const props = defineProps(["data", "pending", "params"]);
 const emit = defineEmits(["update-params"]);
 const searchQuery = ref(props.params.search || "");
 
@@ -56,8 +56,6 @@ watch(
   }
 );
 
-const clickHandle = (obj) => console.log();
-
 const dialogHandle = (id, data) => {
   if (data != null) {
     store.formData = data;
@@ -88,7 +86,7 @@ const backendUrl = config.public.backendUrl;
         <Button @click="handleSearch">Search</Button>
         <Button @click="clearSearch">Clear</Button>
       </div>
-      <CustomDialog :dialogId="'add-dashboard'" :refresh="props.refresh">
+      <CustomDialog :dialogId="'add-dashboard'">
         <Button @click="dialogHandle('add-dashboard', null)">Add</Button>
       </CustomDialog>
     </div>
@@ -114,16 +112,12 @@ const backendUrl = config.public.backendUrl;
       </template>
       <template #actions="data">
         <div class="flex gap-2">
-          <CustomDialog
-            :data="data"
-            :dialogId="`edit-dashboard-${data.value.id}`"
-            :refresh="props.refresh"
-          >
+          <CustomDialog :data="data" :dialogId="`edit-dashboard-${data.value.id}`">
             <Button @click="dialogHandle(`edit-dashboard-${data.value.id}`, data.value)"
               >Edit</Button
             >
           </CustomDialog>
-          <Confirm :id="`popover-${data.value.id}`" :refresh="props.refresh">
+          <Confirm :id="`popover-${data.value.id}`">
             <Button
               @click="popoverHandle(`popover-${data.value.id}`)"
               variant="destructive"

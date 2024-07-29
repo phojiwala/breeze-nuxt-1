@@ -2,7 +2,7 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 
-const props = defineProps(["id", "refresh"]);
+const props = defineProps(["id"]);
 const { $toast } = useNuxtApp();
 
 const cancelHandle = () => {
@@ -10,12 +10,9 @@ const cancelHandle = () => {
 };
 
 const confirmHandle = async () => {
-  let { error, status } = await useFetcher(`/dashboard/${props.id.replace('popover-', '')}`, {
-    method: "DELETE",
-  });
+  const { error, status } = await deleteDashboard(props.id.replace("popover-", ""));
   store.popovers[props.id] = false;
   if (status.value == "success") {
-    props.refresh();
     $toast.success("Item deleted");
   } else {
     $toast.error(error.value.message);

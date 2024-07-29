@@ -6,7 +6,6 @@ import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
-
 const params = reactive({
   page: 1,
   per_page: 10,
@@ -15,27 +14,38 @@ const params = reactive({
   search: "",
 });
 
-onMounted(() => {
+const isInitialLoad = ref(true);
+onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
   params.page = Number(urlParams.get("page")) || 1;
   params.per_page = Number(urlParams.get("per_page")) || 10;
   params.sort_column = urlParams.get("sort_column") || "id";
   params.sort_direction = urlParams.get("sort_direction") || "asc";
   params.search = urlParams.get("search") || "";
+
+  await getDashboard(params);
+  isInitialLoad.value = false;
 });
 
 if (params.search === "") delete params.search;
-let { data, pending, error, refresh, execute, status } = await useFetcher("/dashboard", {
-  query: params,
-});
+
+const debouncedRefresh = setTimeout(async () => {
+  const query = { ...params };
+  if (query.search === "") delete query.search;
+  await refreshDashboard(query);
+  router.push({ query });
+}, 300);
 
 watch(
   params,
   async () => {
-    refresh();
-    const query = { ...params };
-    if (query.search === "") delete query.search;
-    router.push({ query });
+    if (!isInitialLoad.value) {
+      debouncedRefresh();
+      // const query = { ...params };
+      // if (query.search === "") delete query.search;
+      // await refreshDashboard(query);
+      // router.push({ query });
+    }
   },
   { deep: true }
 );
@@ -50,12 +60,11 @@ const updateParams = (newParams) => {
     <Head>
       <Title>Dashboard</Title>
     </Head>
-
     <CustomTable
-      :data="data"
-      :pending="pending"
+      :data="store.dashboard.data"
+      :pending="store.dashboard.pending"
+      :refresh="refreshDashboard"
       :params="params"
-      :refresh="refresh"
       @update-params="updateParams"
     />
   </NuxtLayout>

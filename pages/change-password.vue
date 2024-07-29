@@ -11,27 +11,18 @@ const data = reactive({
   password: "",
   password_confirmation: "",
 });
-// const token = computed(() => route.params.token);
+
 const { submit, inProgress, validationErrors: errors } = useSubmit(
   () => resetPassword({ token: token.value, ...data }),
   {
-    onSuccess: (result) =>
-      router.push({
-        path: "/dashboard",
-      }),
+    onSuccess: (result) => $toast.success("Password changed successfull"),
   }
 );
 </script>
 
 <template>
-  <AuthCard>
-    <template #logo>
-      <NuxtLink href="/">
-        <ApplicationLogo class="w-20 h-20 fill-current text-gray-500" />
-      </NuxtLink>
-    </template>
-
-    <form @submit.prevent="submit">
+  <NuxtLayout name="app-layout">
+    <form @submit.prevent="submit" class="max-w-sm mx-auto">
       <!-- Old Password -->
       <div class="mt-4">
         <Label for="old_password">Old Password</Label>
@@ -71,14 +62,9 @@ const { submit, inProgress, validationErrors: errors } = useSubmit(
         />
       </div>
 
-      <div class="flex items-center justify-between mt-4">
-        <NuxtLink
-          href="/dashboard"
-          class="underline text-sm text-gray-600 hover:text-gray-900 ml-1"
-          >Back</NuxtLink
-        >
+      <div class="flex items-center justify-center mt-4">
         <Button :disabled="inProgress">Reset Password</Button>
       </div>
     </form>
-  </AuthCard>
+  </NuxtLayout>
 </template>
