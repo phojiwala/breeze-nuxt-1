@@ -1,20 +1,22 @@
 <script setup>
 definePageMeta({ middleware: ["auth"] });
+import { store } from "@/composables/states.js";
 import { useFetcher } from "@/composables/useFetcher";
 import { ref, reactive, watch, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
-const params = reactive({
-  page: 1,
-  per_page: 10,
-  sort_column: "id",
-  sort_direction: "asc",
-  search: "",
+const params = store.dashboard.params;
+
+const { data, pending, error, refresh } = useFetcher("/dashboard", {
+  query: params,
+  lazy: true,
 });
 
-const isInitialLoad = ref(true);
+store.dashboard.data = data;
+store.dashboard.pending = pending;
+store.dashboard.error = error;
+
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
   params.page = Number(urlParams.get("page")) || 1;
@@ -22,30 +24,18 @@ onMounted(async () => {
   params.sort_column = urlParams.get("sort_column") || "id";
   params.sort_direction = urlParams.get("sort_direction") || "asc";
   params.search = urlParams.get("search") || "";
-
-  await getDashboard(params);
-  isInitialLoad.value = false;
+  router.push({ ...params });
 });
 
 if (params.search === "") delete params.search;
 
-const debouncedRefresh = setTimeout(async () => {
-  const query = { ...params };
-  if (query.search === "") delete query.search;
-  await refreshDashboard(query);
-  router.push({ query });
-}, 300);
-
 watch(
   params,
-  async () => {
-    if (!isInitialLoad.value) {
-      debouncedRefresh();
-      // const query = { ...params };
-      // if (query.search === "") delete query.search;
-      // await refreshDashboard(query);
-      // router.push({ query });
-    }
+  () => {
+    refresh();
+    const query = { ...params };
+    if (query.search === "") delete query.search;
+    router.push({ query });
   },
   { deep: true }
 );

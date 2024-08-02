@@ -3,7 +3,7 @@ export function useFetcher(
   url,
   options = {}
 ) {
-  return useFetch(url, {
+  return useFetch('/api' + url, {
     $fetch: $fetcher,
     async onResponseError({ response }) {
       const status = response.status;

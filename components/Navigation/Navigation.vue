@@ -4,7 +4,7 @@ const open = ref(false);
 
 const links = [
   { href: "/dashboard", title: "Dashboard" },
-  { href: "/test", title: "Test" },
+  { href: "/accounts", title: "Accounts" },
 ];
 </script>
 

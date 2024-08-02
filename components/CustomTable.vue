@@ -1,6 +1,7 @@
 <script setup>
 import { inject, ref, watch } from "vue";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import Confirm from "@/components/Confirm";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
@@ -25,6 +26,7 @@ const changeServer = (data) => {
   props.params.sort_column = data.sort_column;
   props.params.sort_direction = data.sort_direction;
 };
+
 
 const handleSearch = () => {
   emit("update-params", {
@@ -103,7 +105,7 @@ const backendUrl = config.public.backendUrl;
       <template #image="data">
         <img
           :src="
-            data.value.image ? `${backendUrl}/${data.value.image}` : `/placeholder.png`
+            data.value.image ? `${backendUrl}${data.value.image}` : `/placeholder.png`
           "
           width="30"
           height="30"
@@ -112,6 +114,13 @@ const backendUrl = config.public.backendUrl;
       </template>
       <template #actions="data">
         <div class="flex gap-2">
+          <NuxtLink :href="'/dashboard/view/' + data.value.id">
+            <Button
+              variant="secondary"
+              @click="dialogHandle(`view-dashboard-${data.value.id}`, data.value)"
+              >View</Button
+            >
+          </NuxtLink>
           <CustomDialog :data="data" :dialogId="`edit-dashboard-${data.value.id}`">
             <Button @click="dialogHandle(`edit-dashboard-${data.value.id}`, data.value)"
               >Edit</Button

@@ -9,8 +9,27 @@ export const store = reactive({
   dashboard: {
     data: null,
     pending: false,
-    error: null
-  }
+    error: null,
+    params: {
+      page: 1,
+      per_page: 10,
+      sort_column: "id",
+      sort_direction: "asc",
+      search: "",
+    },
+  },
+  accounts: {
+    data: null,
+    pending: false,
+    error: null,
+    params: {
+      page: 1,
+      per_page: 10,
+      sort_column: "id",
+      sort_direction: "asc",
+      search: "",
+    },
+  },
 })
 
 export async function getDashboard(params = {}) {
@@ -23,10 +42,7 @@ export async function getDashboard(params = {}) {
   return { data, pending, error, refresh }
 }
 
-export const refreshDashboard = async (params = {}) => {
-  const result = await getDashboard(params)
-  return result
-}
+export const refreshDashboard = getDashboard;
 
 export const addDashboard = async (data) => {
   const result = await useFetcher("/dashboard", {
@@ -51,13 +67,13 @@ export const editDashboard = async (data, id) => {
 }
 
 export const deleteDashboard = async (id) => {
-  const result = await useFetcher(`/dashboard/${id}`, {
+  let { data, status, error } = await useFetcher(`/dashboard/${id}`, {
     method: "DELETE",
   })
-  if (result.status.value === "success") {
+  if (status.value === "success") {
     await refreshDashboard()
   }
-  return result
+  return { data, status, error }
 }
 
 export function isObjectEmpty(obj) {

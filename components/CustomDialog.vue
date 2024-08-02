@@ -53,6 +53,13 @@ function uploadImage(e) {
   };
 }
 
+const clearData = () => {
+  preview.value = "/placeholder.png";
+  Object.keys(details.value).forEach((key) => {
+    details.value[key] = null;
+  });
+};
+
 const submit = async () => {
   if (isObjectEmpty(store.formData)) {
     const formData = new FormData();
@@ -65,6 +72,7 @@ const submit = async () => {
     if (status.value == "success") {
       $toast.success("Item added");
       store.dialogs[props.dialogId] = false;
+      clearData();
     } else {
       $toast.error(error.value.message);
     }
@@ -80,6 +88,7 @@ const submit = async () => {
     if (status.value == "success") {
       $toast.success("Item updated");
       store.dialogs[props.dialogId] = false;
+      clearData();
     } else {
       $toast.error(error.value.message);
     }
