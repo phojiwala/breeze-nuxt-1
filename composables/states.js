@@ -1,80 +1,75 @@
 import { useFetcher } from "@/composables/useFetcher";
 import { reactive } from 'vue'
 
+const createStoreObject = () => ({
+  data: null,
+  pending: false,
+  error: null,
+  params: {
+    page: 1,
+    per_page: 10,
+    sort_column: "id",
+    sort_direction: "asc",
+    search: "",
+  },
+  refresh: null
+});
+
 export const store = reactive({
   formData: {},
   open: false,
   dialogs: {},
   popovers: {},
-  dashboard: {
-    data: null,
-    pending: false,
-    error: null,
-    params: {
-      page: 1,
-      per_page: 10,
-      sort_column: "id",
-      sort_direction: "asc",
-      search: "",
-    },
-  },
-  accounts: {
-    data: null,
-    pending: false,
-    error: null,
-    params: {
-      page: 1,
-      per_page: 10,
-      sort_column: "id",
-      sort_direction: "asc",
-      search: "",
-    },
-  },
-})
+  dashboard: createStoreObject(),
+  accounts: createStoreObject(),
+});
 
-export async function getDashboard(params = {}) {
-  let { data, pending, error, refresh, execute, status } = await useFetcher("/dashboard", {
-    query: params,
-  })
-  store.dashboard.data = data
-  store.dashboard.pending = pending
-  store.dashboard.error = error
-  return { data, pending, error, refresh }
+export async function createStoreFunctions(storeKey, endpoint) {
+  store[storeKey].refresh = async (params = {}) => {
+    const { data, pending, error, refresh } = await useFetcher(endpoint, {
+      query: { ...store[storeKey].params, ...params },
+    });
+    store[storeKey].data = data;
+    store[storeKey].pending = pending;
+    store[storeKey].error = error;
+    return { data, pending, error, refresh };
+  };
+
+  store[storeKey].add = async (data) => {
+    const result = await useFetcher(endpoint, {
+      method: "POST",
+      body: data,
+    });
+    if (result.status.value === "success") {
+      await store[storeKey].refresh();
+    }
+    return result;
+  };
+
+  store[storeKey].edit = async (data, id) => {
+    const result = await useFetcher(`${endpoint}/${id}`, {
+      method: "PUT",
+      body: data,
+    });
+    if (result.status.value === "success") {
+      await store[storeKey].refresh();
+    }
+    return result;
+  };
+
+  store[storeKey].delete = async (id) => {
+    const { data, status, error } = await useFetcher(`${endpoint}/${id}`, {
+      method: "DELETE",
+    });
+    if (status.value === "success") {
+      await store[storeKey].refresh();
+    }
+    return { data, status, error };
+  };
 }
 
-export const refreshDashboard = getDashboard;
-
-export const addDashboard = async (data) => {
-  const result = await useFetcher("/dashboard", {
-    method: "POST",
-    body: data,
-  });
-  if (result.status.value === "success") {
-    await refreshDashboard()
-  }
-  return result
-}
-
-export const editDashboard = async (data, id) => {
-  const result = await useFetcher(`/dashboard/${id}`, {
-    method: "PUT",
-    body: data,
-  });
-  if (result.status.value === "success") {
-    await refreshDashboard()
-  }
-  return result
-}
-
-export const deleteDashboard = async (id) => {
-  let { data, status, error } = await useFetcher(`/dashboard/${id}`, {
-    method: "DELETE",
-  })
-  if (status.value === "success") {
-    await refreshDashboard()
-  }
-  return { data, status, error }
-}
+createStoreFunctions('dashboard', '/dashboard');
+createStoreFunctions('accounts', '/accounts');
 
 export function isObjectEmpty(obj) {
   return Object.keys(obj).length === 0;

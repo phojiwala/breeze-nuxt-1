@@ -1,55 +1,75 @@
 <script setup>
-import { inject, ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Confirm from "@/components/Confirm";
+import { Badge } from "@/components/ui/badge";
+import { store } from "@/composables/states.js";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
-import { store, refreshDashboard } from "@/composables/states.js";
 
-const props = defineProps(["data", "pending", "params", "cols", "refresh"]);
-const searchQuery = ref(props.params.search || "");
+const props = defineProps({
+  storeKey: {
+    required: true,
+  },
+  cols: {
+    required: true,
+  },
+  addDialogId: {
+    default: "add-item",
+  },
+  hideAdd: {
+    default: true,
+  },
+});
+
 const router = useRouter();
+const config = useRuntimeConfig();
+const backendUrl = config.public.backendUrl;
+
+const searchQuery = ref("");
+const storeData = store[props.storeKey];
 
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
-  props.params.page = Number(urlParams.get("page")) || 1;
-  props.params.per_page = Number(urlParams.get("per_page")) || 10;
-  props.params.sort_column = urlParams.get("sort_column") || "id";
-  props.params.sort_direction = urlParams.get("sort_direction") || "asc";
-  props.params.search = urlParams.get("search") || "";
-  router.push({ ...props.params });
+  Object.keys(storeData.params).forEach((key) => {
+    const value = urlParams.get(key);
+    if (value !== null) {
+      storeData.params[key] =
+        key === "page" || key === "per_page" ? Number(value) : value;
+    }
+  });
+  router.push({ query: { ...storeData.params } });
+  await storeData.refresh();
 });
 
-if (props.params.search === "") delete props.params.search;
-
 watch(
-  props.params,
-  () => {
-    props.refresh();
-    const query = { ...props.params };
-    if (query.search === "") delete query.search;
-    router.push({ query });
+  () => storeData.params,
+  async () => {
+    await storeData.refresh();
+    router.push({ query: { ...storeData.params } });
   },
   { deep: true }
 );
 
-const changeServer = (data) => {
-  props.params.page = data.current_page;
-  props.params.per_page = data.pagesize;
-  props.params.sort_column = data.sort_column;
-  props.params.sort_direction = data.sort_direction;
+const changeServer = async (data) => {
+  console.log(data)
+  Object.assign(storeData.params, {
+    page: data.current_page,
+    per_page: data.pagesize,
+    sort_column: data.sort_column,
+    sort_direction: data.sort_direction,
+  });
 };
 
-const handleSearch = () => {
-  props.params.search = searchQuery.value;
-  props.params.page = 1;
+const handleSearch = async () => {
+  storeData.params.search = searchQuery.value;
+  storeData.params.page = 1;
 };
 
-const clearSearch = () => {
+const clearSearch = async () => {
   searchQuery.value = "";
-  props.params.search = "";
-  props.params.page = 1;
+  storeData.params.search = "";
+  storeData.params.page = 1;
 };
 
 watch(searchQuery, (newValue) => {
@@ -59,14 +79,16 @@ watch(searchQuery, (newValue) => {
 });
 
 watch(
-  () => props.params.search,
+  () => storeData.params.search,
   (newValue) => {
     searchQuery.value = newValue;
   }
 );
 
-const dialogHandle = (id, data) => {
-  if (data != null) {
+if (storeData.params.search === "") delete storeData.params.search;
+
+const dialogHandle = (id, data = null) => {
+  if (data) {
     store.formData = data;
   }
   store.dialogs[id] = true;
@@ -76,8 +98,18 @@ const popoverHandle = (id) => {
   store.popovers[id] = true;
 };
 
-const config = useRuntimeConfig();
-const backendUrl = config.public.backendUrl;
+// const handleSort = (column) => {
+//   if (storeData.params.sort_column === column) {
+//     // If clicking the same column, toggle the sort direction
+//     storeData.params.sort_direction =
+//       storeData.params.sort_direction === "asc" ? "desc" : "asc";
+//   } else {
+//     // If clicking a new column, set it as the sort column and default to ascending
+//     storeData.params.sort_column = column;
+//     storeData.params.sort_direction = "asc";
+//   }
+//   storeData.params.page = 1; // Reset to first page when sorting changes
+// };
 </script>
 
 <template>
@@ -86,7 +118,6 @@ const backendUrl = config.public.backendUrl;
       <div class="flex justify-between items-center gap-2">
         <Input
           v-model="searchQuery"
-          id="title"
           type="text"
           class="max-w-xs"
           placeholder="Search..."
@@ -95,53 +126,51 @@ const backendUrl = config.public.backendUrl;
         <Button @click="handleSearch">Search</Button>
         <Button @click="clearSearch">Clear</Button>
       </div>
-      <CustomDialog :dialogId="'add-dashboard'">
-        <Button @click="dialogHandle('add-dashboard', null)">Add</Button>
-      </CustomDialog>
+      <template v-if="hideAdd">
+        <CustomDialog :dialogId="addDialogId">
+          <Button @click="dialogHandle(addDialogId)">Add</Button>
+        </CustomDialog>
+      </template>
     </div>
     <Vue3Datatable
-      :columns="props.cols"
+      :columns="cols"
       :isServerMode="true"
       :sortable="true"
-      :rows="props.data?.data"
-      :totalRows="props.data?.total"
-      :pageSize="props.params?.per_page"
-      :loading="props?.pending"
+      :rows="storeData.data?.data"
+      :totalRows="storeData.data?.total"
+      :pageSize="storeData.params.per_page"
+      :loading="storeData.pending"
       @change="changeServer"
     >
-      <template #image="data">
-        <img
-          :src="
-            data.value.image ? `${backendUrl}${data.value.image}` : `/placeholder.png`
-          "
-          width="30"
-          height="30"
-          class="rounded-full cursor-pointer hover:shadow-xl shadow-md w-[30px] h-[30px] object-cover"
-        />
+      <template #status="data">
+        <Badge variant="destructive">{{ data.value.status }}</Badge>
       </template>
       <template #actions="data">
-        <div class="flex gap-2">
-          <NuxtLink :href="'/dashboard/view/' + data.value.id">
-            <Button
-              variant="secondary"
-              @click="dialogHandle(`view-dashboard-${data.value.id}`, data.value)"
-              >View</Button
+        <slot name="actions" :data="data">
+          <div class="flex gap-2">
+            <NuxtLink :to="`/${props.storeKey}/view/${data.value.id}`">
+              <Button variant="secondary">View</Button>
+            </NuxtLink>
+            <CustomDialog
+              :data="data"
+              :dialogId="`edit-${props.storeKey}-${data.value.id}`"
             >
-          </NuxtLink>
-          <CustomDialog :data="data" :dialogId="`edit-dashboard-${data.value.id}`">
-            <Button @click="dialogHandle(`edit-dashboard-${data.value.id}`, data.value)"
-              >Edit</Button
-            >
-          </CustomDialog>
-          <Confirm :id="`popover-${data.value.id}`">
-            <Button
-              @click="popoverHandle(`popover-${data.value.id}`)"
-              variant="destructive"
-            >
-              Delete
-            </Button>
-          </Confirm>
-        </div>
+              <Button
+                @click="
+                  dialogHandle(`edit-${props.storeKey}-${data.value.id}`, data.value)
+                "
+                >Edit</Button
+              >
+            </CustomDialog>
+            <Confirm :id="`popover-${data.value.id}`">
+              <Button
+                @click="popoverHandle(`popover-${data.value.id}`)"
+                variant="destructive"
+                >Delete</Button
+              >
+            </Confirm>
+          </div>
+        </slot>
       </template>
     </Vue3Datatable>
   </main>

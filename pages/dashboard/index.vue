@@ -1,19 +1,8 @@
 <script setup>
 definePageMeta({ middleware: ["auth"] });
 import { store } from "@/composables/states.js";
-import { useFetcher } from "@/composables/useFetcher";
-import { ref, reactive, watch, onMounted } from "vue";
 
-const params = store.dashboard.params;
-const { data, pending, error, refresh } = useFetcher("/dashboard", {
-  query: params,
-  lazy: true,
-});
-store.dashboard.data = data;
-store.dashboard.pending = pending;
-store.dashboard.error = error;
-
-const cols = ref([
+const cols = [
   { field: "id", title: "#", type: "number", sort: false },
   { field: "image", title: "Image", sort: false },
   { field: "title", title: "Title" },
@@ -21,7 +10,7 @@ const cols = ref([
   { field: "description", title: "Description" },
   { field: "category", title: "Category" },
   { field: "actions", title: "Actions", sort: false },
-]);
+];
 </script>
 
 <template>
@@ -29,12 +18,6 @@ const cols = ref([
     <Head>
       <Title>Dashboard</Title>
     </Head>
-    <CustomTable
-      :data="store.dashboard.data"
-      :pending="store.dashboard.pending"
-      :params="params"
-      :refresh="refresh"
-      :cols="cols"
-    />
+    <CustomTable storeKey="dashboard" :cols="cols" addDialogId="add-dashboard" />
   </NuxtLayout>
 </template>

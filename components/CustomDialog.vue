@@ -68,7 +68,7 @@ const submit = async () => {
         formData.append(key, details.value[key]);
       }
     }
-    const { error, status } = await addDashboard(formData);
+    const { error, status } = await store.dashboard.add(formData);
     if (status.value == "success") {
       $toast.success("Item added");
       store.dialogs[props.dialogId] = false;
@@ -84,7 +84,7 @@ const submit = async () => {
         formData.append(key, rest[key]);
       }
     }
-    const { error, status } = await editDashboard(formData, id);
+    const { error, status } = await store.dashboard.edit(formData, id);
     if (status.value == "success") {
       $toast.success("Item updated");
       store.dialogs[props.dialogId] = false;

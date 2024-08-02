@@ -10,7 +10,7 @@ const cancelHandle = () => {
 };
 
 const confirmHandle = async () => {
-  const { data, status, error } = await deleteDashboard(props.id.replace("popover-", ""));
+  const { data, status, error } = await store.dashboard.delete(props.id.replace("popover-", ""));
   store.popovers[props.id] = false;
   if (status.value == "success") {
     $toast.success(data?.value?.message);
