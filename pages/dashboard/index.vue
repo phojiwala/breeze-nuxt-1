@@ -5,14 +5,11 @@ import { useFetcher } from "@/composables/useFetcher";
 import { ref, reactive, watch, onMounted } from "vue";
 
 const router = useRouter();
-const route = useRoute();
 const params = store.dashboard.params;
-
 const { data, pending, error, refresh } = useFetcher("/dashboard", {
   query: params,
   lazy: true,
 });
-
 store.dashboard.data = data;
 store.dashboard.pending = pending;
 store.dashboard.error = error;
@@ -40,9 +37,15 @@ watch(
   { deep: true }
 );
 
-const updateParams = (newParams) => {
-  Object.assign(params, newParams);
-};
+const cols = ref([
+  { field: "id", title: "#", type: "number", sort: false },
+  { field: "image", title: "Image", sort: false },
+  { field: "title", title: "Title" },
+  { field: "price", title: "Price" },
+  { field: "description", title: "Description" },
+  { field: "category", title: "Category" },
+  { field: "actions", title: "Actions", sort: false },
+]);
 </script>
 
 <template>
@@ -55,7 +58,7 @@ const updateParams = (newParams) => {
       :pending="store.dashboard.pending"
       :refresh="refreshDashboard"
       :params="params"
-      @update-params="updateParams"
+      :cols="cols"
     />
   </NuxtLayout>
 </template>

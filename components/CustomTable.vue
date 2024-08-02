@@ -6,19 +6,8 @@ import Confirm from "@/components/Confirm";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
 
-const props = defineProps(["data", "pending", "params"]);
-const emit = defineEmits(["update-params"]);
+const props = defineProps(["data", "pending", "params", "cols"]);
 const searchQuery = ref(props.params.search || "");
-
-const cols = ref([
-  { field: "id", title: "#", type: "number", sort: false },
-  { field: "image", title: "Image", sort: false },
-  { field: "title", title: "Title" },
-  { field: "price", title: "Price" },
-  { field: "description", title: "Description" },
-  { field: "category", title: "Category" },
-  { field: "actions", title: "Actions", sort: false },
-]);
 
 const changeServer = (data) => {
   props.params.page = data.current_page;
@@ -27,22 +16,15 @@ const changeServer = (data) => {
   props.params.sort_direction = data.sort_direction;
 };
 
-
 const handleSearch = () => {
-  emit("update-params", {
-    ...props.params,
-    search: searchQuery.value,
-    page: 1,
-  });
+  props.params.search = searchQuery.value;
+  props.params.page = 1;
 };
 
 const clearSearch = () => {
   searchQuery.value = "";
-  emit("update-params", {
-    ...props.params,
-    search: "",
-    page: 1,
-  });
+  props.params.search = "";
+  props.params.page = 1;
 };
 
 watch(searchQuery, (newValue) => {
@@ -93,7 +75,7 @@ const backendUrl = config.public.backendUrl;
       </CustomDialog>
     </div>
     <Vue3Datatable
-      :columns="cols"
+      :columns="props.cols"
       :isServerMode="true"
       :sortable="true"
       :rows="props.data?.data"
