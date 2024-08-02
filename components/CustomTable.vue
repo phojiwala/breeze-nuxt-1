@@ -26,7 +26,7 @@ const router = useRouter();
 const searchQuery = ref("");
 const storeData = store[props.storeKey];
 
-console.log(storeData.params)
+console.log(storeData.params);
 
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -69,6 +69,7 @@ const clearSearch = async () => {
   searchQuery.value = "";
   storeData.params.search = "";
   storeData.params.page = 1;
+  storeData.params.delete("search");
 };
 
 watch(searchQuery, (newValue) => {
@@ -124,7 +125,7 @@ const popoverHandle = (id) => {
         />
         <Button @click="handleSearch">Search</Button>
         <Button @click="clearSearch">Clear</Button>
-      </div>    
+      </div>
       <template v-if="hideAdd">
         <CustomDialog :dialogId="addDialogId">
           <Button @click="dialogHandle(addDialogId)">Add</Button>
@@ -145,6 +146,15 @@ const popoverHandle = (id) => {
     >
       <template #status="data">
         <Badge variant="destructive">{{ data.value.status }}</Badge>
+      </template>
+      <template #image="data">
+        <img
+          :src="
+            data.value.image ? `${backendUrl}${data.value.image}` : `/placeholder.png`
+          "
+          class="rounded-full cursor-pointer hover:shadow-xl shadow-md w-[30px] h-[30px] object-cover"
+          alt="Item image"
+        />
       </template>
       <template #actions="data">
         <slot name="actions" :data="data">
