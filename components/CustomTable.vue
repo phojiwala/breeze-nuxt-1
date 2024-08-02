@@ -23,11 +23,10 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const config = useRuntimeConfig();
-const backendUrl = config.public.backendUrl;
-
 const searchQuery = ref("");
 const storeData = store[props.storeKey];
+
+console.log(storeData.params)
 
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -45,6 +44,7 @@ onMounted(async () => {
 watch(
   () => storeData.params,
   async () => {
+    // console.log("watch called");
     await storeData.refresh();
     router.push({ query: { ...storeData.params } });
   },
@@ -52,7 +52,6 @@ watch(
 );
 
 const changeServer = async (data) => {
-  console.log(data)
   Object.assign(storeData.params, {
     page: data.current_page,
     per_page: data.pagesize,
@@ -85,7 +84,7 @@ watch(
   }
 );
 
-if (storeData.params.search === "") delete storeData.params.search;
+// if (storeData.params.search === "") delete storeData.params.search;
 
 const dialogHandle = (id, data = null) => {
   if (data) {
@@ -125,7 +124,7 @@ const popoverHandle = (id) => {
         />
         <Button @click="handleSearch">Search</Button>
         <Button @click="clearSearch">Clear</Button>
-      </div>
+      </div>    
       <template v-if="hideAdd">
         <CustomDialog :dialogId="addDialogId">
           <Button @click="dialogHandle(addDialogId)">Add</Button>
@@ -133,13 +132,15 @@ const popoverHandle = (id) => {
       </template>
     </div>
     <Vue3Datatable
-      :columns="cols"
-      :isServerMode="true"
       :sortable="true"
-      :rows="storeData.data?.data"
-      :totalRows="storeData.data?.total"
-      :pageSize="storeData.params.per_page"
-      :loading="storeData.pending"
+      :isServerMode="true"
+      :columns="cols"
+      :rows="storeData?.data?.data"
+      :totalRows="storeData?.data?.total"
+      :pageSize="storeData?.params?.per_page"
+      :sortColumn="storeData?.params?.sort_column"
+      :sortDirection="storeData?.params?.sort_direction"
+      :loading="storeData?.pending"
       @change="changeServer"
     >
       <template #status="data">
