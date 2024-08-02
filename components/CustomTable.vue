@@ -26,7 +26,12 @@ const router = useRouter();
 const searchQuery = ref("");
 const storeData = store[props.storeKey];
 
-console.log(storeData.params);
+const updateUrlParams = (params) => {
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([_, value]) => value !== null && value !== "")
+  );
+  router.push({ query: cleanParams });
+};
 
 onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -37,16 +42,15 @@ onMounted(async () => {
         key === "page" || key === "per_page" ? Number(value) : value;
     }
   });
-  router.push({ query: { ...storeData.params } });
+  updateUrlParams(storeData.params);
   await storeData.refresh();
 });
 
 watch(
   () => storeData.params,
-  async () => {
-    // console.log("watch called");
+  async (newParams) => {
     await storeData.refresh();
-    router.push({ query: { ...storeData.params } });
+    updateUrlParams(newParams);
   },
   { deep: true }
 );
@@ -61,15 +65,14 @@ const changeServer = async (data) => {
 };
 
 const handleSearch = async () => {
-  storeData.params.search = searchQuery.value;
+  storeData.params.search = searchQuery.value || null;
   storeData.params.page = 1;
 };
 
 const clearSearch = async () => {
   searchQuery.value = "";
-  storeData.params.search = "";
+  storeData.params.search = null;
   storeData.params.page = 1;
-  storeData.params.delete("search");
 };
 
 watch(searchQuery, (newValue) => {
@@ -81,11 +84,9 @@ watch(searchQuery, (newValue) => {
 watch(
   () => storeData.params.search,
   (newValue) => {
-    searchQuery.value = newValue;
+    searchQuery.value = newValue || "";
   }
 );
-
-// if (storeData.params.search === "") delete storeData.params.search;
 
 const dialogHandle = (id, data = null) => {
   if (data) {
