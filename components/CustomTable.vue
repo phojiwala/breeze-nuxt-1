@@ -5,9 +5,34 @@ import { Button } from "@/components/ui/button";
 import Confirm from "@/components/Confirm";
 import Vue3Datatable from "@bhplugin/vue3-datatable";
 import "@bhplugin/vue3-datatable/dist/style.css";
+import { store, refreshDashboard } from "@/composables/states.js";
 
-const props = defineProps(["data", "pending", "params", "cols"]);
+const props = defineProps(["data", "pending", "params", "cols", "refresh"]);
 const searchQuery = ref(props.params.search || "");
+const router = useRouter();
+
+onMounted(async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  props.params.page = Number(urlParams.get("page")) || 1;
+  props.params.per_page = Number(urlParams.get("per_page")) || 10;
+  props.params.sort_column = urlParams.get("sort_column") || "id";
+  props.params.sort_direction = urlParams.get("sort_direction") || "asc";
+  props.params.search = urlParams.get("search") || "";
+  router.push({ ...props.params });
+});
+
+if (props.params.search === "") delete props.params.search;
+
+watch(
+  props.params,
+  () => {
+    props.refresh();
+    const query = { ...props.params };
+    if (query.search === "") delete query.search;
+    router.push({ query });
+  },
+  { deep: true }
+);
 
 const changeServer = (data) => {
   props.params.page = data.current_page;
