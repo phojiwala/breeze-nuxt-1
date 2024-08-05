@@ -51,6 +51,10 @@ export async function createStoreFunctions(storeKey, endpoint) {
     const result = await useFetcher(`${endpoint}/${id}`, {
       method: "PUT",
       body: data,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
     });
     if (result.status.value === "success") {
       await store[storeKey].refresh();
