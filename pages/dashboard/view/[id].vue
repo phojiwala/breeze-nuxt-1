@@ -5,7 +5,7 @@ import { useFetcher } from "@/composables/useFetcher";
 const route = useRoute();
 const router = useRouter();
 const id = ref(route.params.id);
-const { data, pending, error, refresh, execute } = useFetcher(`/dashboard/${id.value}`);
+const { data, status, pending, error, refresh, execute } = useFetcher(`/dashboard/${id.value}`);
 
 onMounted(async () => {
   await execute();

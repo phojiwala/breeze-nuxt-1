@@ -49,8 +49,8 @@ onMounted(async () => {
 watch(
   () => storeData.params,
   async (newParams) => {
-    await storeData.refresh();
     updateUrlParams(newParams);
+    await storeData.refresh();
   },
   { deep: true }
 );
@@ -98,19 +98,6 @@ const dialogHandle = (id, data = null) => {
 const popoverHandle = (id) => {
   store.popovers[id] = true;
 };
-
-// const handleSort = (column) => {
-//   if (storeData.params.sort_column === column) {
-//     // If clicking the same column, toggle the sort direction
-//     storeData.params.sort_direction =
-//       storeData.params.sort_direction === "asc" ? "desc" : "asc";
-//   } else {
-//     // If clicking a new column, set it as the sort column and default to ascending
-//     storeData.params.sort_column = column;
-//     storeData.params.sort_direction = "asc";
-//   }
-//   storeData.params.page = 1; // Reset to first page when sorting changes
-// };
 </script>
 
 <template>

@@ -26,13 +26,14 @@ export const store = reactive({
 
 export async function createStoreFunctions(storeKey, endpoint) {
   store[storeKey].refresh = async (params = {}) => {
-    const { data, pending, error, refresh } = await useFetcher(endpoint, {
+    store[storeKey].pending = true;
+    const { data, error, refresh, status } = await useFetcher(endpoint, {
       query: { ...store[storeKey].params, ...params },
     });
     store[storeKey].data = data;
-    store[storeKey].pending = pending;
+    store[storeKey].pending = false;
     store[storeKey].error = error;
-    return { data, pending, error, refresh };
+    return { data, error, refresh };
   };
 
   store[storeKey].add = async (data) => {
